@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Fav Books</title>
+    {% load static %}
+
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header class="blog-header py-3 bg-light">
+        <div class="row flex-nowrap justify-content-between align-items-center m-3">
+            <div class="col-4 pt-1">
+            <h5 class="lead"> Welcome, {{user.first_name}} </h5>            </div>
+            <div class="col-4 text-center">
+            <a class="blog-post-title text-dark" href="/books">Fav Books</a>
+            </div>
+            <div class="col-4 d-flex justify-content-end align-items-center">
+            
+            <a class="btn btn-sm btn-outline-secondary" href="/">Sign up</a>
+            <a class="btn btn-sm btn-outline-primary ml-3" href="/logout">Log Out</a>
+
+        </div>
+        </div>
+    </header>
+    <hr class="featurette-divider">
+
+    <div class="container">
+        <div class="row">
+            
+            <div class="col-sm-12 col-md-6 col-lg-6 mb-3">
+
+
+                    {% if messages %}
+                    <ul class="lead text-center mr-4 pr-5 mb-4" style="list-style:none;color:red">    
+                        {% for message in messages %}    
+                            <li {% if message.tags %} class="{{ message.tags }} m-2"{% endif %}>{{ message }} !</li>    
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <form action='/update/{{book.id}}' method="POST">
+                    {%csrf_token%}
+                        <div class="input-group input-group-lg pb-3" >
+                            <div class="input-group-prepend" >
+                            </div>
+                            <input type="text" class="form-control" placeholder="{{book.title}}" name="title" >
+                        </div>
+                        <p class="lead">Added by: {{book.uploaded_by.first_name}}  {{book.uploaded_by.last_name}}</p>
+                        <p class="lead">Added on: {{book.created_at}}</p>
+                        <p class="lead">Last Updated on: {{book.updated_at}}</p>
+           
+                    
+                    <div class="form-group">
+                            <label >Description</label>
+                            <input type="text-area" class="form-control" name="desc" placeholder="{{book.desc}}">
+                        </div>
+                </form>
+                
+                {% if user.id == book.uploaded_by %}
+
+                    <button type="submit" class="btn-sm btn-primary">Update</button>
+
+                {%endif%}
+
+                {% if user.id not in book.created_by %}
+
+                    <form action='/delete/{{book.id}}' method='POST'>
+                    {%csrf_token%}
+                        <button name="delBook" id="{book.id}" class="btn-sm btn-primary mt-4">Delete</button>
+                    </form>
+                {% endif %}
+            </div>
+            
+            <div class="container col-sm-12 col-md-6 col-lg-6">
+                <h2 class="blog-post-title pb-3">Users who liked this book:</h2>
+                <ul class="list-group list-group-flush mb-3">
+                    
+                    {% for person in liked_by %}
+
+                    <li class="list-group-item lead"><h5>{{ person.first_name }} {{ person.last_name }}</h5>
+                        
+                        {% if user == person %}
+                            <a href="/unfav/{{book.id}}"><p class="small"> Un-Favorite </p></a>
+
+                        {% endif %}
+
+                    </li>
+
+                    {%endfor%}
+                </ul>
+            </div>
+
+        </div>
+    </div>
+    
+</body>
+</html>
